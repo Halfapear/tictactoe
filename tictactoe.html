@@ -1,0 +1,86 @@
+<!-- 声明文档类型为 HTML -->
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- 设置网页标题 -->
+    <title>井字棋</title>
+    <!-- 内联 CSS 样式 -->
+    <style>
+        /* 设置棋盘为网格布局，每行三个单元格，单元格间距为 10px */
+        #board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        /* 设置每个单元格的宽度、高度、边框、文本居中对齐、行高和字体大小 */
+        .cell { width: 60px; height: 60px; border: 1px solid; text-align: center; line-height: 60px; font-size: 20px; }
+    </style>
+</head>
+<body>
+    <!-- 创建一个 id 为 board 的 div 元素作为棋盘 -->
+    <div id="board"></div>
+    <!-- 创建一个按钮，点击时调用 reset 函数重新开始游戏 -->
+    <button onclick="reset()">重新开始</button>
+    <!-- 内联 JavaScript 代码 -->
+    <script>
+        // 创建一个长度为 9 的数组 board 来存储棋盘的状态，初始值为 null
+        var board = Array(9).fill(null);
+        // 创建一个变量 turn 来存储当前的回合，初始值为 'X'
+        var turn = 'X';
+
+        // 定义 reset 函数，用于重置棋盘和回合
+        function reset() {
+            // 将棋盘的所有单元格重置为 null
+            board.fill(null);
+            // 将回合重置为 'X'
+            turn = 'X';
+            // 将所有单元格的文本内容清空
+            document.querySelectorAll('.cell').forEach(cell => cell.textContent = '');
+        }
+
+        // 定义 checkWin 函数，用于检查游戏是否结束以及谁是赢家
+        function checkWin() {
+            // 定义所有可能的赢家线（即三个连续的单元格）
+            var lines = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
+            // 遍历所有的赢家线
+            for (var line of lines) {
+                // 如果某一赢家线上的三个单元格的值都相同且不为 null，则返回该值（'X' 或 'O'）
+                if (board[line[0]] && board[line[0]] === board[line[1]] && board[line[0]] === board[line[2]]) {
+                    return board[line[0]];
+                }
+            }
+            // 如果棋盘上没有 null（即所有单元格都已填充），则返回 'Tie' 表示平局
+            // 否则返回 null 表示游戏尚未结束
+            return board.includes(null) ? null : 'Tie';
+        }
+
+        // 定义 handleClick 函数，用于处理单元格的点击事件
+        function handleClick(e) {
+            // 获取被点击的单元格的索引
+            var index = e.target.dataset.index;
+            // 如果被点击的单元格已经被填充，或者游戏已经结束，则不做任何处理
+            if (board[index] || checkWin()) return;
+            // 将被点击的单元格的文本内容设置为当前回合的值（'X' 或 'O'）
+            e.target.textContent = turn;
+            // 将被点击的单元格在棋盘上的对应位置设置为当前回合的值（'X' 或 'O'）
+            board[index] = turn;
+            // 切换回合
+            turn = turn === 'X' ? 'O' : 'X';
+            // 检查游戏是否结束以及谁是赢家
+            var winner = checkWin();
+            // 如果游戏结束，则弹出一个警告框显示游戏结果
+            if (winner) alert(winner === 'Tie' ? '平局' : winner + ' 赢了');
+        }
+
+        // 遍历棋盘上的每一个单元格
+        for (var i = 0; i < 9; i++) {
+            // 创建一个新的 div 元素作为单元格
+            var cell = document.createElement('div');
+            // 给单元格添加 cell 类
+            cell.classList.add('cell');
+            // 给单元格添加一个自定义属性 data-index，值为当前的索引
+            cell.dataset.index = i;
+            // 给单元格添加一个点击事件监听器，点击时调用 handleClick 函数
+            cell.addEventListener('click', handleClick);
+            // 将单元格添加到棋盘中
+            document.getElementById('board').appendChild(cell);
+        }
+    </script>
+</body>
+</html>
